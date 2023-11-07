@@ -1,0 +1,25 @@
+[package]
+name = "rust-grpc-sled-client"
+version = "0.1.0"
+authors = ["Johannes Haberlah"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]] # Bin to run the HelloWorld gRPC server
+name = "european-rag-keyvalue-service"
+path = "src/server.rs"
+
+[[bin]] # Bin to run the HelloWorld gRPC server
+name = "european-rag-keyvalue-client"
+path = "src/client.rs"
+
+[dependencies]
+tonic = "0.7"
+prost = "0.10.1"
+tokio = { version = "1.18", features = ["macros", "rt-multi-thread"] }
+sled = "0.34.7"
+async-stream = "0.3.3"
+
+[build-dependencies]
+tonic-build = "0.7"
