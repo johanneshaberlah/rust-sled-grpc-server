@@ -6,13 +6,9 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]] # Bin to run the HelloWorld gRPC server
-name = "european-rag-keyvalue-service"
+[[bin]]
+name = "rust-grpc-sled-client"
 path = "src/server.rs"
-
-[[bin]] # Bin to run the HelloWorld gRPC server
-name = "european-rag-keyvalue-client"
-path = "src/client.rs"
 
 [dependencies]
 tonic = "0.7"
