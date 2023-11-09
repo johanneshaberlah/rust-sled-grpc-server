@@ -1,5 +1,5 @@
 [package]
-name = "rust-grpc-sled-client"
+name = "rust-grpc-sled-server"
 version = "0.1.0"
 authors = ["Johannes Haberlah"]
 edition = "2018"
@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "rust-grpc-sled-client"
+name = "rust-grpc-sled-server"
 path = "src/server.rs"
 
 [dependencies]

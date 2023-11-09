@@ -23,16 +23,8 @@ impl KeyValueStorage for SledKeyValueStorage {
         match self.database.get(&key) {
             // If the key is found and a value is returned...
             Ok(Some(value_bytes)) => {
-                // Attempt to convert the binary value to a UTF-8 string.
-                match String::from_utf8(value_bytes.to_vec()) {
-                    // If successful, create a KeyValuePair and send it back in the response.
-                    Ok(value) => {
-                        let key_value_pair = KeyValuePair { key, value };
-                        Ok(Response::new(key_value_pair))
-                    }
-                    // If the binary value cannot be read as a string, return a "not found" error.
-                    Err(_) => Err(Status::not_found("Could not read binary value as UTF-8")),
-                }
+                let key_value_pair = KeyValuePair { key, value: value_bytes.to_vec() };
+                Ok(Response::new(key_value_pair))
             }
             // If the key is not found in the database, return a "not found" error.
             Ok(None) => Err(Status::not_found("No entry found for the specified key")),
@@ -57,12 +49,13 @@ impl KeyValueStorage for SledKeyValueStorage {
     // Asynchronously insert a key-value pair into the storage.
     async fn insert(&self, request: Request<KeyValuePair>) -> Result<Response<KeyValuePair>, Status> {
         let KeyValuePair { key, value } = request.into_inner();
+        let value_clone = value.clone();
 
         // Attempt to insert the key-value pair into the database.
-        match self.database.insert(&key, value.as_bytes()) {
+        match self.database.insert(&key, value) {
             // If successful, return the original key-value pair in the response.
             Ok(_) => {
-                let inserted_pair = KeyValuePair { key, value };
+                let inserted_pair = KeyValuePair { key, value: value_clone };
                 Ok(Response::new(inserted_pair))
             }
             // If there is an error during insertion, return an internal error.
@@ -80,12 +73,10 @@ impl KeyValueStorage for SledKeyValueStorage {
             match key_result {
                 // If a key is found...
                 Ok((key_bytes, _)) => {
-                    // Attempt to convert the binary key to a UTF-8 string.
+                    // Convert the binary key (IVec) to a UTF-8 string and push it to the keys vector.
                     match String::from_utf8(key_bytes.to_vec()) {
-                        // If successful, add the string key to the list of keys.
-                        Ok(key) => keys.push(key),
-                        // If the key cannot be parsed, return an internal error.
-                        Err(_) => return Err(Status::internal("Failed to parse key from binary to UTF-8")),
+                        Ok(key_string) => keys.push(key_string),
+                        Err(_) => return Err(Status::internal("Key found is not valid UTF-8")),
                     }
                 },
                 // If there is an error during the database scan, return an internal error.
@@ -106,6 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let service = SledKeyValueStorage {
         database: sled::open(database_name).unwrap()
     };
+    println!("Listening on 10522...");
     Server::builder()
         .add_service(KeyValueStorageServer::new(service))
         .serve(address)

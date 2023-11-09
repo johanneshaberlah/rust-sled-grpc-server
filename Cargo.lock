@@ -749,7 +749,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-grpc-sled-client"
+name = "rust-grpc-sled-server"
 version = "0.1.0"
 dependencies = [
  "async-stream",
